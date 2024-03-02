@@ -16,24 +16,29 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_1 = __importDefault(require("express"));
 const index_1 = require("../middleware/index");
 const db_1 = require("../db");
+const common_1 = require("@saurav8616/common");
 const router = express_1.default.Router();
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const signUpData = req.body;
-    const { username, password } = signUpData;
+    const check = common_1.signUpInput.safeParse(req.body);
+    if (!check.success) {
+        return res.status(403).json({
+            error: check.error,
+        });
+    }
+    const { username, password } = req.body;
     const user = yield db_1.User.findOne({ username });
     if (user) {
-        res.status(403).json({ message: "User already exists" });
+        return res.status(403).json({ message: "User already exists" });
     }
     else {
         const newUser = new db_1.User({ username, password });
         yield newUser.save();
         const token = jsonwebtoken_1.default.sign({ id: newUser._id }, index_1.SECRET, { expiresIn: "1h" });
-        res.json({ message: "User created successfully", token });
+        return res.json({ message: "User created successfully", token });
     }
 }));
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const signUpData = req.body;
-    const { username, password } = signUpData;
+    const { username, password } = req.body;
     const user = yield db_1.User.findOne({ username, password });
     if (user) {
         const token = jsonwebtoken_1.default.sign({ id: user._id }, index_1.SECRET, { expiresIn: "1h" });
