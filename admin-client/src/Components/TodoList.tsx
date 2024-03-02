@@ -10,11 +10,10 @@ interface Todo {
 }
 
 const TodoList = () => {
+  const authStateValue = useRecoilValue(authState);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const authStateValue = useRecoilValue(authState);
-
   useEffect(() => {
     const getTodos = async () => {
       const response = await fetch("http://localhost:3000/todo/todos", {
@@ -25,7 +24,7 @@ const TodoList = () => {
       setTodos(data);
     };
     getTodos();
-  }, [authState.token]);
+  }, []);
 
   const addTodo = async () => {
     const response = await fetch("http://localhost:3000/todo/todos", {
